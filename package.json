@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/BigHAAS/thefluentdm/issues"
   },
-  "homepage": "https://github.com/BigHAAS/thefluentdm#readme"
+  "homepage": "https://github.com/BigHAAS/thefluentdm#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }

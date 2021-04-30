@@ -2,34 +2,58 @@ import { render } from '@testing-library/react';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import MainScreen from "./main-screen.js"
+import MenuScreen from "./menu-screen";
 
 export default class Login extends React.Component {
     constructor(props){
         super(props)
         this.state = {
-            username: "",
-            passwsord: "",
+            formData: {
+                username: "",
+                passwsord: ""
+            },
             isLoggedOn: false,
         }
+        this.handleChange = this.handleChange.bind(this);
     }
-    handleSubmitClick = () => {
-        this.setState({isLoggedOn:true})
+    handleSubmitClick = async e => {
+        e.preventDefault();
+        try {
+            const body = { "email":this.state.formData.username, "password":this.state.formData.password };
+            const response = await fetch("http://localhost:5000/users/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                body: JSON.stringify(body)
+            });
+            const isLoggedOn = await response.json();
+            console.log(isLoggedOn);
+            this.setState({isLoggedOn});
+        } catch (error) {
+            
+        }
     }
     handleChange(event) {
-        this.setState({ [event.target.name]: event.target.value });
+        let formData = Object.assign({}, this.state.formData);
+        formData[event.target.name] = event.target.value;
+        this.setState({formData});
     }
     render () {
         return (
             <div>
-                <div className="login">
-                    <input name="username" value={ this.state.username } onChange={ this.handleChange } />
-                    <input name="password" value={ this.state.passwsord } onChange={ this.handleChange } />
-                    <button onClick={this.handleSubmitClick}>Submit</button>
-                </div>
-                <div className="main-screen">
-                    <MainScreen />
-                </div>
+                {!this.state.isLoggedOn && 
+                    <form className="login" onSubmit={this.handleSubmitClick}>
+                        <label>Email
+                            <input name="username" type="text" value={ this.state.formData.username } onChange={ this.handleChange } />
+                        </label>
+                        <label>Passowrd
+                            <input name="password" type="password" value={ this.state.formData.password } onChange={ this.handleChange } />
+                        </label>
+                        <button>Submit</button>
+                    </form>
+                }
+                {this.state.isLoggedOn && 
+                    <MenuScreen/>
+                }
             </div>
         );
     }

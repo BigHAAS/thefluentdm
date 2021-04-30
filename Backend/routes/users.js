@@ -2,15 +2,20 @@ var express = require('express');
 const pool = require("../../../Private/db");
 var router = express.Router();
 
-/* GET users listing. */
-router.get('/', async(req, res, next) => {
+/* GET users listing for specific ID. */
+router.post('/login', async(req, res, next) => {
   try{
+    const { email, password } = req.body;
     const userList = await pool.query(
-      "SELECT * FROM Users",
-      []
+      "SELECT userid FROM public.\"Users\" WHERE email=$1 AND password=crypt($2, password);",
+      [email,password]
     );
     console.log(userList);
-    res.send(userList);
+    if(userList.rowCount===1){
+      res.send(true);
+    } else {
+      res.send(false);
+    }
   } catch (err) {
     console.error(err.message);
   }

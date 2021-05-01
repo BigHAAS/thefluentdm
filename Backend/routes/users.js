@@ -21,17 +21,18 @@ router.post('/login', async(req, res, next) => {
   }
 });
 
-/* POST unew users. */
+/* POST new users. */
 router.post('/', async(req,res) => {
   try{
     const { email, password } = req.body;
     const newUser = await pool.query(
-      "INSERT INTO public.\"Users\" (email,password) VALUES($1,crypt($2,gen_salt('bf')));",
+      "INSERT INTO public.\"Users\" (email,password) VALUES($1,crypt($2,gen_salt('bf'))) RETURNING userid;",
       [email, password]
     );
+    res.send(newUser.rows[0]);
   } catch (err) {
     console.error(err.message);
   }
-  res.send("complete");
-})
+});
+
 module.exports = router;

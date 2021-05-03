@@ -14,6 +14,7 @@ export default class Login extends React.Component {
             },
             isLoggedOn: false,
         }
+        this.userid = null;
         this.handleChange = this.handleChange.bind(this);
     }
     handleSubmitClick = async e => {
@@ -25,9 +26,11 @@ export default class Login extends React.Component {
                 headers: { "Content-Type": "application/json", "Accept": "application/json" },
                 body: JSON.stringify(body)
             });
-            const isLoggedOn = await response.json();
-            console.log(isLoggedOn);
-            this.setState({isLoggedOn});
+            const user = await response.json();
+            if(user){
+                this.userid=user.userid;
+                this.setState({isLoggedOn:true});
+            }
         } catch (error) {
             
         }
@@ -52,7 +55,7 @@ export default class Login extends React.Component {
                     </form>
                 }
                 {this.state.isLoggedOn && 
-                    <MenuScreen/>
+                    <MenuScreen userid={this.userid}/>
                 }
             </div>
         );

@@ -10,12 +10,7 @@ router.post('/login', async(req, res, next) => {
       "SELECT userid FROM public.\"Users\" WHERE email=$1 AND password=crypt($2, password);",
       [email,password]
     );
-    console.log(userList);
-    if(userList.rowCount===1){
-      res.send(true);
-    } else {
-      res.send(false);
-    }
+    res.send(userList.rows[0]);
   } catch (err) {
     console.error(err.message);
   }

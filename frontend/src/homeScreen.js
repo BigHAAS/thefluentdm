@@ -5,7 +5,7 @@ import ReactDOM from 'react-dom';
 import ListDashboard from './listDashboard';
 import NewDashboard from './newDashboard';
 
-export default class MainScreen extends React.Component {
+export default class HomeScreen extends React.Component {
     constructor(props){
         super(props)
         this.state = {

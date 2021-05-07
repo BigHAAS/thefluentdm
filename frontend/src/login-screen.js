@@ -2,7 +2,11 @@ import { render } from '@testing-library/react';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-import MenuScreen from "./menu-screen";
+import HomeScreen from "./homeScreen";
+
+import {
+    Route,
+} from "react-router-dom";
 
 export default class Login extends React.Component {
     constructor(props){
@@ -10,9 +14,9 @@ export default class Login extends React.Component {
         this.state = {
             formData: {
                 username: "",
-                passwsord: ""
+                password: ""
             },
-            isLoggedOn: false,
+            successfulLogin: false,
         }
         this.userid = null;
         this.handleChange = this.handleChange.bind(this);
@@ -29,7 +33,7 @@ export default class Login extends React.Component {
             const user = await response.json();
             if(user){
                 this.userid=user.userid;
-                this.setState({isLoggedOn:true});
+                this.setState({successfulLogin:true});
             }
         } catch (error) {
             
@@ -43,19 +47,19 @@ export default class Login extends React.Component {
     render () {
         return (
             <div>
-                {!this.state.isLoggedOn && 
+                {!this.state.successfulLogin && 
                     <form className="login" onSubmit={this.handleSubmitClick}>
                         <label>Email
                             <input name="username" type="text" value={ this.state.formData.username } onChange={ this.handleChange } />
                         </label>
-                        <label>Passowrd
+                        <label>Password
                             <input name="password" type="password" value={ this.state.formData.password } onChange={ this.handleChange } />
                         </label>
                         <button>Submit</button>
                     </form>
                 }
-                {this.state.isLoggedOn && 
-                    <MenuScreen userid={this.userid}/>
+                {this.state.successfulLogin && 
+                    <HomeScreen userid={this.userid}/>
                 }
             </div>
         );

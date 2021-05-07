@@ -2,6 +2,13 @@ import { render } from '@testing-library/react';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
+import {
+    BrowserRouter as Router, 
+    Switch,
+    Route,
+    Link
+} from "react-router-dom";
+
 import Dashboard from './dashboard';
 
 function ListItem(props){
@@ -14,6 +21,7 @@ export default class ListDashboard extends React.Component {
         this.state = {
             dashboardList: [],
         }
+        this.dashboardid=null;
     }
     async componentDidMount(){
         try {
@@ -28,14 +36,22 @@ export default class ListDashboard extends React.Component {
         }
     }
     render() {
-        const dashboardListItems = this.state.dashboardList.map((dashboardObject) =>
-            <ListItem key={dashboardObject.dashboardid} value={dashboardObject.name}/>
-        );
+        const dashboardListItems = this.state.dashboardList.map((dashboardObject) =>{
+            const linkToDashboard = <Link to={`/${dashboardObject.dashboardid}`}>{dashboardObject.name}</Link>;
+             return <ListItem key={dashboardObject.dashboardid} value={linkToDashboard}/>
+        });
         return (
             <div>
-               <ol>
-                   {dashboardListItems}
-               </ol>
+                <Router>
+                    <ol>
+                        {dashboardListItems}
+                    </ol>
+                    <Switch>
+                        <Route path="/:dashboardid">
+                                <Dashboard dashboardid={({ match }) => { return match.params.dashboardid }} userid={this.props.userid}/>
+                        </Route>
+                    </Switch>
+               </Router>
             </div>
         );
     }

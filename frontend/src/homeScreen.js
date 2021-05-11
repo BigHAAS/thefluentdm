@@ -30,10 +30,10 @@ export default class HomeScreen extends React.Component {
                     </div>
                 }
                 {this.state.choice===1 && 
-                    <NewDashboard userid={this.props.userid}/>
+                    <NewDashboard />
                 }
                 {this.state.choice===2 && 
-                    <ListDashboard userid={this.props.userid}/>
+                    <ListDashboard />
                 }
             </div>
         );

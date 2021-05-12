@@ -9,19 +9,28 @@ import {
     BrowserRouter as Router, 
     Redirect, 
     Route,
+    Switch
 } from "react-router-dom";
 
 function App(){
     const { token, setToken } = useToken();
-    if(!token){
-        return <Login setToken={setToken}/>
-    }
+
     return (
         <Router>
-            <Redirect exact from="/" to="/home"/> 
-            <Route path="/home">
-                <HomeScreen/>
+            {
+                !token && <Redirect exact from="/" to="/login"/>
+            }
+            {
+                token && <Redirect exact from="/" to="/home"/> 
+            }
+            <Switch>
+            <Route exact path="/home">
+                <HomeScreen setToken={setToken}/>
             </Route>
+            <Route exact path="/login">
+                <Login setToken={setToken}/>  
+            </Route>
+            </Switch>
         </Router>
     );
 }

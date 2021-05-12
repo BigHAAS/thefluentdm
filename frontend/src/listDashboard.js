@@ -39,17 +39,19 @@ export default function ListDashboard() {
     return (
         <div>
             <Router>
-                <ol>
-                    {
-                        dashboardList.map((dashboardObject) =>{
-                            const linkToDashboard = <Link to={`/dashboard/${dashboardObject.dashboardid}`}>{dashboardObject.name}</Link>;
-                            return <ListItem key={dashboardObject.dashboardid} value={linkToDashboard}/>
-                        })
-                    }
-                </ol>
                 <Switch>
+                    <Route exact path="/home/list-dashboard">
+                        <ol>
+                            {
+                                dashboardList.map((dashboardObject) =>{
+                                    const linkToDashboard = <Link to={`/dashboard/${dashboardObject.dashboardid}`}>{dashboardObject.name}</Link>;
+                                    return <ListItem key={dashboardObject.dashboardid} value={linkToDashboard}/>
+                                })
+                            }
+                        </ol>
+                    </Route>
                     <Route path="/dashboard/:dashboardid">
-                            <Dashboard dashboardid={({ match }) => { return match.params.dashboardid }} />
+                        <Dashboard />
                     </Route>
                 </Switch>
             </Router>

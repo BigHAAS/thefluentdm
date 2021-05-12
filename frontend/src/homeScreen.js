@@ -1,41 +1,49 @@
 import { render } from '@testing-library/react';
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React, { useEffect, useState } from 'react';
 
 import ListDashboard from './listDashboard';
 import NewDashboard from './newDashboard';
 
-export default class HomeScreen extends React.Component {
-    constructor(props){
-        super(props)
-        this.state = {
-            choice: 0
-        }
-        this.handleLoadDashboard = this.handleLoadDashboard.bind(this);
-        this.handleNewDashboard = this.handleNewDashboard.bind(this);
-    }
-    handleNewDashboard = () => {
-        this.setState({choice:1});
-    }
-    handleLoadDashboard = () => {
-        this.setState({choice:2});
-    }
-    render () {
-        return (
-            <div>
-                {this.state.choice===0 && 
+import {
+    BrowserRouter as Router, 
+    Link, 
+    Redirect, 
+    Route,
+    Switch,
+} from "react-router-dom";
+
+function Logout( { setToken } ) {
+    useEffect(() => {
+        setToken({});
+    })
+    return (
+        <Redirect to="/login"/>
+    );
+}
+
+export default function HomeScreen( {setToken } ) {
+    return (
+        <Router>
+            <Switch>
+                <Route exact path="/home">
                     <div className="main-screen-options">
-                        <button onClick={this.handleNewDashboard}>New Dashboard</button>
-                        <button onClick={this.handleLoadDashboard}>Load Dashboard</button>
+                        <ul>
+                            <Link to="/home/create-dashboard">New Dashboard</Link>
+                            <Link to="/home/list-dashboard">Load Dashboard</Link>
+                            <Link to="/logout">Logout</Link>
+                        </ul>
                     </div>
-                }
-                {this.state.choice===1 && 
+                </Route>
+                <Route exact path="/home/create-dashboard">
                     <NewDashboard />
-                }
-                {this.state.choice===2 && 
+                </Route>
+                <Route exact path="/home/list-dashboard">
                     <ListDashboard />
-                }
-            </div>
-        );
-    }
+                </Route>
+                <Route exact path="/logout">
+                    <Logout setToken={setToken}/>
+                </Route>
+            </Switch>
+        </Router>
+    );
 }

@@ -4,6 +4,11 @@ import PropTypes from 'prop-types';
 export default function Login( { setToken } ){
     const [username, setUserName] = useState();
     const [password, setPassword] = useState();
+    const [userid, setUserId] = useState();
+
+    useEffect(() => {
+        setToken({"token": userid});
+    },[userid])
 
     const handleSubmit = async e => {
         e.preventDefault();
@@ -16,7 +21,7 @@ export default function Login( { setToken } ){
             });
             const user = await response.json();
             if(user){
-                setToken({"token": user.userid});
+                setUserId(user.userid);
             }
         } catch (error) {
             

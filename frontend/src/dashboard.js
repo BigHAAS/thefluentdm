@@ -11,6 +11,26 @@ function ListItem(props){
     return <li>{props.value}</li>
 }
 
+function NewAction( { dashboardid } ){
+    [actionName, setActionName] = useState("");
+    [actionType, setActionType] = useState(0);
+
+    const handleSubmit = async e => {
+
+    }
+
+    <form onSubmit={ handleSubmit }>
+        <label>Name
+            <input name="actionName" type="text" value={ actionName } onChange={ e => setActionName(e.target.value) }/>
+        </label>
+        <label for="actionType">Type</label>
+        <select name="actionType" id="actionType" value={ actionType } onChange={ e => setActionType(e.target.value) }>
+            <option value="1">Dice Roll Table</option>
+        </select>
+        <button>Submit</button>
+    </form>
+}
+
 export default function Dashboard(){
 
     const [actionList , setActionList] = useState([]);
@@ -23,8 +43,8 @@ export default function Dashboard(){
                     method: "GET",
                     headers: { "Accept": "application/json" },
                 });
-                const actionList = await response.json();
-                setActionList(actionList);
+                const actionObj = await response.json();
+                setActionList(actionList => [...actionList, actionObj]);
             } catch (error) {
                 
             }
@@ -33,6 +53,9 @@ export default function Dashboard(){
 
     return (
         <div>
+            <ul>
+                <ListItem key={0} value={ <NewAction dashboardid={ dashboardid }/>} />
+            </ul>
             <ol>
                 {
                     actionList.map((action) => 

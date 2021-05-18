@@ -16,6 +16,7 @@ function App(){
     const { token, setToken } = useToken();
 
     return (
+<<<<<<< HEAD
         <div>
             <Switch>
                 <Route path="/"> 

@@ -16,22 +16,22 @@ function App(){
     const { token, setToken } = useToken();
 
     return (
-        <div>
+        <Switch>
+            <Route path="/">
             {
                 !token && <Redirect exact from="/" to="/login"/>
             }
             {
                 token && <Redirect exact from="/" to="/home"/> 
             }
-            <Switch>
+            </Route>
             <Route exact path="/home">
                 <HomeScreen setToken={setToken}/>
             </Route>
             <Route exact path="/login">
                 <Login setToken={setToken}/>  
             </Route>
-            </Switch>
-        </div>
+        </Switch>
     );
 }
 

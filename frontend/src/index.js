@@ -17,19 +17,18 @@ function App(){
 
     return (
         <div>
-            {
-                !token && <Redirect exact from="/" to="/login"/>
-            }
-            {
-                token && <Redirect exact from="/" to="/home"/> 
-            }
             <Switch>
-            <Route exact path="/home">
-                <HomeScreen setToken={setToken}/>
-            </Route>
-            <Route exact path="/login">
-                <Login setToken={setToken}/>  
-            </Route>
+                <Route path="/"> 
+                    {
+                        !token && <Redirect exact from="/" to="/login"/>
+                    }
+                </Route>
+                <Route exact path="/home">
+                    <HomeScreen setToken={setToken}/>
+                </Route>
+                <Route exact path="/login">
+                    <Login setToken={setToken}/>  
+                </Route>
             </Switch>
         </div>
     );

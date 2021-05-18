@@ -16,7 +16,7 @@ function App(){
     const { token, setToken } = useToken();
 
     return (
-        <Router>
+        <div>
             {
                 !token && <Redirect exact from="/" to="/login"/>
             }
@@ -31,12 +31,14 @@ function App(){
                 <Login setToken={setToken}/>  
             </Route>
             </Switch>
-        </Router>
+        </div>
     );
 }
 
 
 ReactDOM.render(
-    <App />,
+    <Router>
+        <App />
+    </Router>,
     document.getElementById('root')
 );

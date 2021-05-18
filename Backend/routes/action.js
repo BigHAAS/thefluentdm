@@ -6,7 +6,7 @@ var router = express.Router();
 router.get('/get-dashboard-actions/:dashboardid',async(req,res) => {
     try {
         const query = 
-        "SELECT public.\"Action\".actionid, public.\"Action\".name "+ 
+        "SELECT public.\"Action\".actionid, public.\"Action\".name, public.\"Action\".type "+ 
             "FROM public.\"Action\" "+
         "LEFT OUTER JOIN public.\"DashboardActionList\" "+
             "ON public.\"Action\".actionid = public.\"DashboardActionList\".actionid "+
@@ -30,6 +30,12 @@ router.post('/new-dashboard-action/diceRoller', async(req,res) => {
             [actionName,actionType]
         );
         const actionId = action.rows[0].actionid;
+
+        const updateDashboardActionQuery = "UPDATE public.\"DashboardActionList\" SET position=position+1 WHERE dashboardid=$1"
+        const updateDashboardAction = await pool.query(
+            updateDashboardActionQuery,
+            [dashboardid]
+        );
 
         const insertDashboardActionQuery = "INSERT INTO public.\"DashboardActionList\" (dashboardid, actionid,position) VALUES ($1,$2,$3)";
         const dashboardAction = await pool.query(

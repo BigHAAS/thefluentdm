@@ -8,7 +8,9 @@ import {
     BrowserRouter as Router, 
     Switch,
     Route,
-    Link
+    Link, 
+    useHistory,
+    useLocation
 } from "react-router-dom";
 
 import Dashboard from './dashboard';
@@ -18,7 +20,6 @@ function ListItem(props){
 }
 
 export default function ListDashboard() {
-    
     const { token, setToken } = useToken();
     const [dashboardList, setDashboardList] = useState([]);
 
@@ -36,25 +37,20 @@ export default function ListDashboard() {
             }
         }; getDashboardList();
     },[])
+
     return (
         <div>
-            <Router>
-                <Switch>
-                    <Route exact path="/home/list-dashboard">
-                        <ol>
-                            {
-                                dashboardList.map((dashboardObject) =>{
-                                    const linkToDashboard = <Link to={`/dashboard/${dashboardObject.dashboardid}`}>{dashboardObject.name}</Link>;
-                                    return <ListItem key={dashboardObject.dashboardid} value={linkToDashboard}/>
-                                })
-                            }
-                        </ol>
-                    </Route>
-                    <Route path="/dashboard/:dashboardid">
-                        <Dashboard />
-                    </Route>
-                </Switch>
-            </Router>
+            <ol>
+                {
+                    dashboardList.map((dashboardObject) =>{
+                        const linkToDashboard = <Link to={`/dashboard/${dashboardObject.dashboardid}`}>{dashboardObject.name}</Link>;
+                        return <ListItem key={dashboardObject.dashboardid} value={linkToDashboard}/>
+                    })
+                }
+            </ol>
+            <Route path="/dashboard/:dashboardid">
+                <Dashboard />
+            </Route>
         </div>
     );
 }

@@ -25,12 +25,12 @@ export default function HomeScreen( {setToken } ) {
     return (
         <Router>
             <Switch>
-                <Route exact path="/home">
+                <Route>
                     <div className="main-screen-options">
                         <ul>
-                            <Link to="/home/create-dashboard">New Dashboard</Link>
-                            <Link to="/home/list-dashboard">Load Dashboard</Link>
-                            <Link to="/logout">Logout</Link>
+                            <li><Link to="/home/create-dashboard">New Dashboard</Link></li>
+                            <li><Link to="/home/list-dashboard">Load Dashboard</Link></li>
+                            <li><Link to="/logout">Logout</Link></li>
                         </ul>
                     </div>
                 </Route>

@@ -10,6 +10,7 @@ import {
     Redirect, 
     Route,
     Switch,
+    useRouteMatch,
 } from "react-router-dom";
 
 function Logout( { setToken } ) {
@@ -22,9 +23,11 @@ function Logout( { setToken } ) {
 }
 
 export default function HomeScreen( {setToken } ) {
+    const { url } = useRouteMatch();
+
     return (
         <Switch>
-            <Route path="/home">
+            <Route exact path="/home">
                 <div className="main-screen-options">
                     <ul>
                         <li><Link to="/create-dashboard">New Dashboard</Link></li>
@@ -33,14 +36,14 @@ export default function HomeScreen( {setToken } ) {
                     </ul>
                 </div>
             </Route>
-            <Route exact path="/create-dashboard">
+            <Route exact path={`${url}/create-dashboard`}>
                 <NewDashboard />
             </Route>
-            <Route exact path="/list-dashboard">
+            <Route exact path={`${url}/list-dashboard`}>
                 <ListDashboard />
             </Route>
-            <Route exact path="/logout">
-                <Logout setToken={setToken}/>
+            <Route path="/logout">
+                <Logout exact setToken={setToken}/>
             </Route>
         </Switch>
     );

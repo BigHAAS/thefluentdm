@@ -92,7 +92,6 @@ export default function Dashboard(){
 
     return (
         <div>
-            <p>{location.pathname}</p>
             <Switch>
                 <Route path={`/dashboard/${dashboardid}`}>
                 <ul>

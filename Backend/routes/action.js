@@ -10,7 +10,7 @@ router.get('/get-dashboard-actions/:dashboardid',async(req,res) => {
             "FROM public.\"Action\" "+
         "LEFT OUTER JOIN public.\"DashboardActionList\" "+
             "ON public.\"Action\".actionid = public.\"DashboardActionList\".actionid "+
-            "AND public.\"DashboardActionList\".dashboardid = $1";
+            "WHERE public.\"DashboardActionList\".dashboardid = $1";
         const actionList = await pool.query( 
             query,
             [req.params.dashboardid]

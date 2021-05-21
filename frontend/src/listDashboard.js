@@ -1,19 +1,16 @@
 import { render } from '@testing-library/react';
 import React, {useEffect, useState} from 'react';
-import ReactDOM from 'react-dom';
 
 import useToken from './useToken';
+import Dashboard from './dashboard';
 
 import {
-    BrowserRouter as Router, 
+    Redirect,
+    Link,
     Switch,
     Route,
-    Link, 
-    useHistory,
-    useLocation
+    useRouteMatch
 } from "react-router-dom";
-
-import Dashboard from './dashboard';
 
 function ListItem(props){
     return <li>{props.value}</li>
@@ -22,7 +19,7 @@ function ListItem(props){
 export default function ListDashboard() {
     const { token, setToken } = useToken();
     const [dashboardList, setDashboardList] = useState([]);
-
+    const { url } = useRouteMatch();
     useEffect(() => {
         const getDashboardList = async () => {
             try {
@@ -39,18 +36,20 @@ export default function ListDashboard() {
     },[])
 
     return (
-        <div>
-            <ol>
-                {
-                    dashboardList.map((dashboardObject) =>{
-                        const linkToDashboard = <Link to={`/dashboard/${dashboardObject.dashboardid}`}>{dashboardObject.name}</Link>;
-                        return <ListItem key={dashboardObject.dashboardid} value={linkToDashboard}/>
-                    })
-                }
-            </ol>
-            <Route path="/dashboard/:dashboardid">
-                <Dashboard />
+        <Switch>
+            <Route path={`${url}`}>
+                <ol>
+                    {
+                        dashboardList.map((dashboardObject) =>{
+                            const linkToDashboard = <Link to={`/dashboard/${dashboardObject.dashboardid}`}>{`${dashboardObject.name}`}</Link>;
+                            return <ListItem key={dashboardObject.dashboardid} value={linkToDashboard}/>
+                        })
+                    }
+                </ol>
             </Route>
-        </div>
+            <Route path="/dashboard/:dashboardid">
+                    <Dashboard />
+            </Route>
+        </Switch>
     );
 }

@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 
 import Login from "./login-screen";
 import HomeScreen from "./homeScreen";
+import Dashboard from "./dashboard";
 import useToken from './useToken';
 
 import {
@@ -14,31 +15,32 @@ import {
 
 function App(){
     const { token, setToken } = useToken();
-
-    return (
-<<<<<<< HEAD
-        <div>
+    
+    return(
+        <Router>
             <Switch>
-                <Route path="/"> 
-                    {
-                        !token && <Redirect exact from="/" to="/login"/>
-                    }
-                </Route>
-                <Route exact path="/home">
-                    <HomeScreen setToken={setToken}/>
+                {
+                    !token && <Route path="/"> <Redirect exact from="/" to="/login"/></Route>
+                }
+                <Route exact path="/">
+                    <Redirect exact from="/" to="/home" />
                 </Route>
                 <Route exact path="/login">
                     <Login setToken={setToken}/>  
                 </Route>
+                <Route path="/home">
+                    <HomeScreen setToken={setToken}/>
+                </Route>
+                <Route path="/dashboard/:dashboardid">
+                    <Dashboard />
+                </Route>
             </Switch>
-        </div>
+        </Router>
     );
 }
 
 
 ReactDOM.render(
-    <Router>
-        <App />
-    </Router>,
+    <App />,
     document.getElementById('root')
 );

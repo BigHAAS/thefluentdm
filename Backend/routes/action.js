@@ -55,4 +55,30 @@ router.post('/new-dashboard-action/diceRoller', async(req,res) => {
     }
 })
 
+router.get('/diceroller/:actionid', async(req,res) => {
+    try {
+        const diceQuery ="SELECT dice FROM public.\"DiceRoller\" WHERE actionid=$1";
+        const diceRollerDice = await pool.query(
+            diceQuery,
+            [req.params.actionid]
+        );
+
+        const encounterListQuery = 
+        "SELECT public.\"Encounter\".description AS col2, public.\"EncounterActionList\".position AS col1 \n"+
+            "FROM public.\"EncounterActionList\" \n"+
+        "FULL OUTER JOIN public.\"Encounter\" \n"+
+            "ON public.\"EncounterActionList\".encounterid = public.\"Encounter\".encounterid \n"+
+        "WHERE public.\"EncounterActionList\".actionid=$1 \n"+
+        "ORDER BY public.\"EncounterActionList\".position";
+        const encounterList = await pool.query(
+            encounterListQuery,
+            [req.params.actionid]
+        )
+        const diceValue = (diceRollerDice.rows[0].dice===null) ? "" : diceRollerDice.rows[0].dice;
+        res.send({diceValue:diceValue, diceEncounterArr:encounterList.rows });
+    } catch (error) {
+        console.error(error.message);
+    }
+})
+
 module.exports = router;

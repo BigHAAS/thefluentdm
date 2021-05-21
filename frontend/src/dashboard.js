@@ -35,16 +35,22 @@ function NewAction( { dashboardid, renderToggle, setRenderToggle } ){
             
         }
     }
+
+    const handleCancel = () => {
+        setRenderToggle(!renderToggle);
+    }
+
     return (
         <form onSubmit={ handleSubmit }>
             <label>Name
-                <input name="actionName" type="text" value={ actionName } onChange={ e => setActionName(e.target.value) }/>
+                <input name="actionName" type="text" value={ actionName } onChange={ e => setActionName(e.target.value) } required/>
             </label>
             <label htmlFor="actionType">Type</label>
             <select name="actionType" id="actionType" value={ actionType } onChange={ e => setActionType(e.target.value) }>
                 <option value={1}>Dice Roll Table</option>
             </select>
-            <button>Submit</button>
+            <button type="submit">Submit</button>
+            <button type="button" onClick={ handleCancel }>X</button>
         </form>
     );
 }
@@ -69,13 +75,13 @@ export default function Dashboard(){
                     let currAction = actionObjArr[i];
                     switch(currAction.type){
                         case 1:
-                            actionComponentArr.push({"id":currAction.id, "name": currAction.name, "component":<DiceRoller />});
+                            actionComponentArr.push({"id":currAction.actionid, "type":currAction.type, "name": currAction.name, "component":<DiceRoller actionid={ currAction.actionid }/>});
                             break;
                         default:
                             actionComponentArr.push(<div><p>Error</p></div>);
                     }
                 }
-                setActionList(actionList => [...actionList, ...actionComponentArr]);
+                setActionList(actionComponentArr);
             } catch (error) {
                 
             }
@@ -90,6 +96,10 @@ export default function Dashboard(){
         }
     }
 
+    const handleSave = () => {
+
+    }
+
     return (
         <div>
             <Switch>
@@ -97,6 +107,9 @@ export default function Dashboard(){
                 <ul>
                     <ListItem key={0} 
                         value={ getNewActionValue() } 
+                    />
+                    <ListItem key={1}
+                        value={ <button onClick={ handleSave }>Save</button> }
                     />
                 </ul>
                 {actionList.length>0 && 

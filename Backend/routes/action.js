@@ -21,6 +21,7 @@ router.get('/get-dashboard-actions/:dashboardid',async(req,res) => {
     }
 })
 
+/*Create a new Action*/
 router.post('/new-dashboard-action/diceRoller', async(req,res) => {
     try {
         const { actionName, actionType, dashboardid, position } = req.body;
@@ -55,6 +56,9 @@ router.post('/new-dashboard-action/diceRoller', async(req,res) => {
     }
 })
 
+
+
+/*Get DiceRoller Action*/
 router.get('/diceroller/:actionid', async(req,res) => {
     try {
         const diceQuery ="SELECT dice FROM public.\"DiceRoller\" WHERE actionid=$1";
@@ -76,6 +80,38 @@ router.get('/diceroller/:actionid', async(req,res) => {
         )
         const diceValue = (diceRollerDice.rows[0].dice===null) ? "" : diceRollerDice.rows[0].dice;
         res.send({diceValue:diceValue, diceEncounterArr:encounterList.rows });
+    } catch (error) {
+        console.error(error.message);
+    }
+})
+
+router.put('/diceroller/update/:actionid', async(req,res) => {
+    try {
+        const { diceToBeSet } = req.body;
+        const diceUpdateQuery = "UPDATE public.\"DiceRoller\" SET dice=$1 WHERE actionid=$2"
+        const diceUpdate = await pool.query(
+            diceUpdateQuery,
+            [diceToBeSet,req.params.actionid]
+        )
+    } catch (error) {
+        console.error(error.message);
+    }
+});
+
+/*GET all encounters by user*/
+router.get('/list-encounters/:userid',async(req,res) => {
+    try {
+        const query = 
+        "SELECT public.\"Encounter\".encounterid, public.\"Encounter\".description "+ 
+            "FROM public.\"Encounter\" "+
+        "LEFT OUTER JOIN public.\"UserEncounterList\" "+
+            "ON public.\"Encounter\".encounterid = public.\"UserEncounterList\".encounterid "+
+            "WHERE public.\"UserEncounterList\".userid = $1";
+        const encounterList = await pool.query( 
+            query,
+            [req.params.userid]
+        );
+        res.send(encounterList.rows);
     } catch (error) {
         console.error(error.message);
     }

@@ -8,8 +8,7 @@ import {
     Redirect,
     Link,
     Switch,
-    Route,
-    useRouteMatch
+    Route
 } from "react-router-dom";
 
 function ListItem(props){
@@ -19,7 +18,7 @@ function ListItem(props){
 export default function ListDashboard() {
     const { token, setToken } = useToken();
     const [dashboardList, setDashboardList] = useState([]);
-    const { url } = useRouteMatch();
+
     useEffect(() => {
         const getDashboardList = async () => {
             try {
@@ -36,8 +35,8 @@ export default function ListDashboard() {
     },[])
 
     return (
-        <Switch>
-            <Route path={`${url}`}>
+        <div>
+            <div className="dashboard-list">
                 <ol>
                     {
                         dashboardList.map((dashboardObject) =>{
@@ -46,10 +45,12 @@ export default function ListDashboard() {
                         })
                     }
                 </ol>
-            </Route>
-            <Route path="/dashboard/:dashboardid">
-                    <Dashboard />
-            </Route>
-        </Switch>
+            </div>
+            <Switch>
+                <Route path="/dashboard/:dashboardid">
+                        <Dashboard />
+                </Route>
+            </Switch>
+        </div>
     );
 }

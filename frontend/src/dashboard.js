@@ -6,6 +6,7 @@ import {
     Route,
     useParams,
     useLocation,
+    useRouteMatch,
     Switch
 } from "react-router-dom";
 
@@ -56,8 +57,9 @@ function NewAction( { dashboardid, renderToggle, setRenderToggle } ){
 }
 
 export default function Dashboard(){
-
+    const { url } = useRouteMatch();
     const [actionList , setActionList] = useState([]);
+    const [listOption, setListOption] = useState();
     const [renderToggle, setRenderToggle] = useState(false);
     let { dashboardid } = useParams();
     let location = useLocation();
@@ -96,33 +98,25 @@ export default function Dashboard(){
         }
     }
 
-    const handleSave = () => {
-
-    }
-
     return (
-        <div>
-            <Switch>
-                <Route path={`/dashboard/${dashboardid}`}>
-                <ul>
-                    <ListItem key={0} 
-                        value={ getNewActionValue() } 
-                    />
-                    <ListItem key={1}
-                        value={ <button onClick={ handleSave }>Save</button> }
-                    />
-                </ul>
-                {actionList.length>0 && 
-                    <ol>
-                        {
-                            actionList.map((action) => 
-                                <ListItem key={ action.id } value={ action.component } />
-                            )
-                        }
-                    </ol>
-                }
-                </Route>
-            </Switch>
+        <div className="dashboard">
+            <ul>
+                <ListItem key={0} 
+                    value={ getNewActionValue() } 
+                />
+            </ul>
+            {actionList.length>0 && 
+                <ol>
+                    {
+                        actionList.map((action) => 
+                            <ListItem key={ action.id } value={ action.component } />
+                        )
+                    }
+                </ol>
+            }
+            <Route path={`${url}/list-selector/:${listOption}`}>
+                
+            </Route>
         </div>
     );
 }

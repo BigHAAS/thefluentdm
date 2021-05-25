@@ -41,12 +41,14 @@ class DiceEditor extends React.Component{
         }
         this.handleChange=this.handleChange.bind(this);
         this.handleClick=this.handleClick.bind(this);
+        this.handleSubmitClick=this.handleSubmitClick.bind(this);
     }
     handleClick(){
         this.setState({isEditing:true});
 
     }
-    handleSubmitClick = (newDice) => {
+    handleSubmitClick = () => {
+        const newDice = this.state.newDice;
         if(/^\d+[d]\d+([+]\d+[d]\d+)*$/.test(newDice.replace(/ /g,''))){
             this.props.setNewDice(newDice);
             this.setState({newDice:'',isEditing:false});
@@ -68,7 +70,7 @@ class DiceEditor extends React.Component{
             }
         } else {
             input=<input value={this.state.newDice} onChange={this.handleChange}/>;
-            button=<EditorButton onClick={() => this.handleSubmitClick(this.state.newDice)} message="Submit" />;
+            button=<EditorButton onClick={this.handleSubmitClick} message="Submit" />;
         }
         return (
             <div>
@@ -190,7 +192,21 @@ export default class DiceRoller extends React.Component{
         this.setNewDice=this.setNewDice.bind(this);
         this.handleRollClick=this.handleRollClick.bind(this);
     }
-
+    async componentDidUpdate(prevState){
+        console.log("here");
+        if(prevState.diceToRoll !== this.state.diceToRoll){
+            try {
+                const response = await fetch(`http://localhost:5000/action/diceroller/update/${this.props.actionid}/`, {
+                    method: "PUT",
+                    headers: { "Accept": "application/json", "Content-Type": "application/json" },
+                    body: JSON.stringify({diceToBeSet: this.state.diceToRoll})
+                });
+                await response.json();
+            } catch (error) {
+                
+            }
+        }
+    }
     async componentDidMount() {
         try {
             const response = await fetch(`http://localhost:5000/action/diceroller/${this.props.actionid}/`, {
@@ -227,8 +243,7 @@ export default class DiceRoller extends React.Component{
         this.setState({encounterData:tempArr});
     }
     setNewDice(newDice) {
-        this.setState({diceToRoll:newDice}, this.setEncounterData
-        );
+        this.setState({diceToRoll:newDice}, this.setEncounterData);
     }
     setEncounterIndex = (index,data) => {
         let trueIndex = getDiceMaxMinObj(this.state.diceToRoll).min+index;

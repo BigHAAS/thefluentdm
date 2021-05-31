@@ -4,6 +4,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 
 import dataFunction from './dataFunction'
+import ListEncounter from './listEncounter'
+
+import { useHistory } from "react-router-dom"
 
 const getDiceMaxMinObj = (diceToRoll) => {
     let formattedDiceArr = diceToRoll.replace(/ /g,'').split("+");
@@ -80,29 +83,6 @@ class DiceEditor extends React.Component{
         );
     }
 }
-/*
-class ListEditor extends React.Component{
-    constructor(props){
-        super(props);
-        this.state = {
-            encounters: [],
-            newEncounter:'',
-            isEditing: false
-        }
-    }
-    render() {
-        const arr = Array(this.state.maxDiceRoll-this.state.minDiceRoll);
-        const diceRollTable = encounters.map((encounters,index) => {
-            <DiceRollTableRow col1={this.state.minDiceRoll+index} col2={this.state.encountersindex} />
-        });
-        return (
-            <div className="list-control">
-
-            </div>
-        );
-    }
-}
-*/
 const EditableCell = ({
     value: initialValue,
     row: { index },
@@ -120,7 +100,7 @@ const EditableCell = ({
         setValue(initialValue)
     },[initialValue])
 
-    if(id==="col1"){
+    if(id==="col1" || id==="col2"){
         return <input value={value} onChange={onChange} readOnly/>
     } else {
         return <input value={value} onChange={onChange}/>
@@ -131,7 +111,9 @@ const defaultColumn = {
     Cell:EditableCell
 }
 
-function Table({ headerParam, dataParam, setEncounterIndex }) {
+function Table({ headerParam, dataParam, setEncounterIndex, url, actionid }) {
+    const history = useHistory();
+    //const location = useLocation();
     const columns = React.useMemo(
         () => dataFunction(headerParam),[headerParam]
     );
@@ -169,6 +151,9 @@ function Table({ headerParam, dataParam, setEncounterIndex }) {
                   {row.cells.map(cell => {
                     return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
                   })}
+                  <td>
+                      <button onClick={() => history.push(`${url}/encounter-selector/${actionid}/${row.cells[0].value}`)}>+</button>
+                  </td>
                 </tr>
               )
             })}
@@ -192,19 +177,32 @@ export default class DiceRoller extends React.Component{
         this.setNewDice=this.setNewDice.bind(this);
         this.handleRollClick=this.handleRollClick.bind(this);
     }
-    async componentDidUpdate(prevState){
-        console.log("here");
+    async componentDidUpdate(prevProps, prevState){
         if(prevState.diceToRoll !== this.state.diceToRoll){
             try {
                 const response = await fetch(`http://localhost:5000/action/diceroller/update/${this.props.actionid}/`, {
                     method: "PUT",
                     headers: { "Accept": "application/json", "Content-Type": "application/json" },
-                    body: JSON.stringify({diceToBeSet: this.state.diceToRoll})
+                    body: JSON.stringify({diceToBeSet: this.state.diceToRoll, encounterData: this.state.encounterData})
                 });
                 await response.json();
             } catch (error) {
+
+            }
+        }
+        if(this.props.toUpdate!==prevProps.toUpdate && this.props.toUpdate==this.props.actionid){
+            try {
+                const response = await fetch(`http://localhost:5000/action/diceroller/${this.props.actionid}/`, {
+                    method: "GET",
+                    headers: { "Accept": "application/json" },
+                });
+                const diceRollerObj = await response.json();
+                const encounterData = diceRollerObj.diceEncounterArr;
+                this.setState({encounterData});
+            } catch (error) {
                 
             }
+            this.props.setToUpdate("-1");
         }
     }
     async componentDidMount() {
@@ -262,8 +260,8 @@ export default class DiceRoller extends React.Component{
         this.setState({lastResult:this.state.encounterData[roll].col2});
     }
     render() {
-        const encounterHeader = [{Header: 'Dice Roll',accessor:"col1"},{Header:'Encounter',accessor:'col2'},];
-        const overflowHeader = [{Header: 'Warning: Previously entered encounters will never be reached',accessor:"col1"},{Header:'',accessor:'col2'},];
+        const encounterHeader = [{Header: 'Dice Roll',accessor:"col1"},{Header:'Encounter',accessor:'col2'}];
+        const overflowHeader = [{Header: 'Warning: Previously entered encounters will never be reached',accessor:"col1"},{Header:'',accessor:'col2'}];
         let diceMinMaxObj = getDiceMaxMinObj(this.state.diceToRoll);
         let overflowEncounterData=this.state.encounterData.slice();
         let encounterData = overflowEncounterData.splice(0,(diceMinMaxObj.max + 1 -diceMinMaxObj.min));
@@ -279,11 +277,11 @@ export default class DiceRoller extends React.Component{
                 </div>
                 <div className="encounter-table">
                     <div className="encounter-table-data">
-                        <Table headerParam={encounterHeader} dataParam={encounterData} setEncounterIndex={this.setEncounterIndex}/>
+                        <Table headerParam={encounterHeader} dataParam={encounterData} setEncounterIndex={this.setEncounterIndex} url={this.props.url} actionid={this.props.actionid}/>
                     </div>
                     {overflowEncounterData.length>0 && 
                         <div className="encounter-table-overflow">
-                            <Table headerParam= {overflowHeader} dataParam={overflowEncounterData} setEncounterIndex={this.setEncounterIndex}/>
+                            <Table headerParam= {overflowHeader} dataParam={overflowEncounterData} setEncounterIndex={this.setEncounterIndex} url={this.props.url} actionid={this.props.actionid}/>
                         </div>
                     }
                 </div>

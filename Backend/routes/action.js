@@ -93,6 +93,7 @@ router.put('/diceroller/update/:actionid', async(req,res) => {
             diceUpdateQuery,
             [diceToBeSet,req.params.actionid]
         )
+        res.send("Complete");
     } catch (error) {
         console.error(error.message);
     }
@@ -112,6 +113,47 @@ router.get('/list-encounters/:userid',async(req,res) => {
             [req.params.userid]
         );
         res.send(encounterList.rows);
+    } catch (error) {
+        console.error(error.message);
+    }
+})
+
+/*POST new encounter*/
+router.post('/new-encounter/:userid',async(req,res) => {
+    try {
+        const { description } = req.body;
+        const insertEncounterQuery = "INSERT INTO public.\"Encounter\" (description) VALUES ($1) RETURNING encounterid";
+        const encounterList = await pool.query( 
+            insertEncounterQuery,
+            [description]
+        );
+        const encounterID = encounterList.rows[0].encounterid;
+        const insertUserEncounterListQuery = "INSERT INTO public.\"UserEncounterList\" (userid,encounterid) VALUES ($1,$2)";
+        const insertUserEncounterList = await pool.query(
+            insertUserEncounterListQuery,
+            [req.params.userid,encounterID]
+        )
+        res.send(""+encounterID);
+    } catch (error) {
+        console.error(error.message);
+    }
+})
+
+router.post('/new-encounter-action-rel', async(req,res) => {
+    try {
+        const { encounterid, actionid, position } = req.body;
+        const deleteRelQuery = "DELETE FROM public.\"EncounterActionList\" WHERE actionid=$1 AND position=$2";
+        const deleteRel = await pool.query(
+            deleteRelQuery,
+            [actionid,position]
+        )
+        const insertRelQuery = "INSERT INTO public.\"EncounterActionList\" (actionid,encounterid,position) VALUES ($1,$2,$3) RETURNING linkid";
+        const insertRelList = await pool.query(
+            insertRelQuery,
+            [actionid,encounterid,position]
+        )
+        const linkID = insertRelList.rows[0].linkid;
+        res.send(""+linkID);
     } catch (error) {
         console.error(error.message);
     }

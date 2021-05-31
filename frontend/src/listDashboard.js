@@ -8,7 +8,8 @@ import {
     Redirect,
     Link,
     Switch,
-    Route
+    Route, 
+    useHistory
 } from "react-router-dom";
 
 function ListItem(props){
@@ -17,6 +18,7 @@ function ListItem(props){
 
 export default function ListDashboard() {
     const { token, setToken } = useToken();
+    let history = useHistory();
     const [dashboardList, setDashboardList] = useState([]);
 
     useEffect(() => {

@@ -11,6 +11,7 @@ import {
 } from "react-router-dom";
 
 import DiceRoller from "./dice-roller";
+import ListEncounter from "./listEncounter";
 
 function ListItem(props){
     return <li>{props.value}</li>
@@ -59,7 +60,7 @@ function NewAction( { dashboardid, renderToggle, setRenderToggle } ){
 export default function Dashboard(){
     const { url } = useRouteMatch();
     const [actionList , setActionList] = useState([]);
-    const [listOption, setListOption] = useState();
+    const [toUpdate, setToUpdate] = useState(-1);
     const [renderToggle, setRenderToggle] = useState(false);
     let { dashboardid } = useParams();
     let location = useLocation();
@@ -77,7 +78,10 @@ export default function Dashboard(){
                     let currAction = actionObjArr[i];
                     switch(currAction.type){
                         case 1:
-                            actionComponentArr.push({"id":currAction.actionid, "type":currAction.type, "name": currAction.name, "component":<DiceRoller actionid={ currAction.actionid }/>});
+                            actionComponentArr.push({"id":currAction.actionid, 
+                                                      "type":currAction.type, 
+                                                      "name": currAction.name, 
+                                                      "component":<DiceRoller actionid={ currAction.actionid } toUpdate={toUpdate} setToUpdate={handleActionUpdate} url={`/dashboard/${dashboardid}`}/>});
                             break;
                         default:
                             actionComponentArr.push(<div><p>Error</p></div>);
@@ -88,7 +92,7 @@ export default function Dashboard(){
                 
             }
         }; getDashboardActions();
-    },[])
+    },[toUpdate, ])
 
     const getNewActionValue = () => {
         if(!renderToggle){
@@ -98,24 +102,30 @@ export default function Dashboard(){
         }
     }
 
+    function handleActionUpdate(actionid){
+        setToUpdate(actionid);
+    }
+
     return (
         <div className="dashboard">
-            <ul>
-                <ListItem key={0} 
-                    value={ getNewActionValue() } 
-                />
-            </ul>
-            {actionList.length>0 && 
-                <ol>
-                    {
-                        actionList.map((action) => 
-                            <ListItem key={ action.id } value={ action.component } />
-                        )
-                    }
-                </ol>
-            }
-            <Route path={`${url}/list-selector/:${listOption}`}>
-                
+            <Route path={`${url}`}>
+                <ul>
+                    <ListItem key={0} 
+                        value={ getNewActionValue() } 
+                    />
+                </ul>
+                {actionList.length>0 && 
+                    <ol>
+                        {
+                            actionList.map((action) => 
+                                <ListItem key={ action.id } value={ action.component } />
+                            )
+                        }
+                    </ol>
+                }
+            </Route>
+            <Route exact path={`${url}/encounter-selector/:actionid/:position`}>
+                <ListEncounter handleActionUpdate={handleActionUpdate}/>
             </Route>
         </div>
     );

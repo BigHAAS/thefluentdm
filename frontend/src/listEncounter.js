@@ -68,7 +68,7 @@ export default function ListEncounter( { handleActionUpdate }) {
 
     async function replaceEncounterAction(encounterid) {
         try {
-            const response = await fetch(`http://localhost:5000/action/new-encounter-action-rel`,{
+            const response = await fetch(`http://localhost:5000/action/replace-encounter-action-rel`,{
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Accept": "application/json" },
                 body: JSON.stringify({

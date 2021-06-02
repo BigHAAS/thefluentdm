@@ -68,7 +68,7 @@ router.get('/diceroller/:actionid', async(req,res) => {
         );
 
         const encounterListQuery = 
-        "SELECT public.\"Encounter\".description AS col2, public.\"EncounterActionList\".position AS col1 \n"+
+        "SELECT public.\"Encounter\".description AS col2, public.\"EncounterActionList\".position AS col1, public.\"Encounter\".encounterid, public.\"EncounterActionList\".linkid \n"+
             "FROM public.\"EncounterActionList\" \n"+
         "FULL OUTER JOIN public.\"Encounter\" \n"+
             "ON public.\"EncounterActionList\".encounterid = public.\"Encounter\".encounterid \n"+
@@ -85,7 +85,7 @@ router.get('/diceroller/:actionid', async(req,res) => {
     }
 })
 
-router.put('/diceroller/update/:actionid', async(req,res) => {
+router.put('/diceroller/update/dice/:actionid', async(req,res) => {
     try {
         const { diceToBeSet } = req.body;
         const diceUpdateQuery = "UPDATE public.\"DiceRoller\" SET dice=$1 WHERE actionid=$2"
@@ -93,7 +93,7 @@ router.put('/diceroller/update/:actionid', async(req,res) => {
             diceUpdateQuery,
             [diceToBeSet,req.params.actionid]
         )
-        res.send("Complete");
+        res.send(JSON.stringify( {message: "Complete"} ));
     } catch (error) {
         console.error(error.message);
     }
@@ -139,7 +139,7 @@ router.post('/new-encounter/:userid',async(req,res) => {
     }
 })
 
-router.post('/new-encounter-action-rel', async(req,res) => {
+router.post('/replace-encounter-action-rel', async(req,res) => {
     try {
         const { encounterid, actionid, position } = req.body;
         const deleteRelQuery = "DELETE FROM public.\"EncounterActionList\" WHERE actionid=$1 AND position=$2";
@@ -153,7 +153,35 @@ router.post('/new-encounter-action-rel', async(req,res) => {
             [actionid,encounterid,position]
         )
         const linkID = insertRelList.rows[0].linkid;
-        res.send(""+linkID);
+        res.send(JSON.stringify({linkid: ""+linkID}));
+    } catch (error) {
+        console.error(error.message);
+    }
+})
+
+router.put('/update-encounter-action-rel', async(req,res) => {
+    try {
+        const { encounterid, position, linkid } = req.body;
+        const insertRelQuery = "UPDATE public.\"EncounterActionList\" SET position=$2, encounterid=$1 WHERE linkid=$3";
+        const insertRelList = await pool.query(
+            insertRelQuery,
+            [encounterid,position,linkid]
+        )
+        res.send(insertRelList);
+    } catch (error) {
+        console.error(error.message);
+    }
+})
+
+router.post('/delete-encounter-action-rel', async(req,res) => {
+    try {
+        const { linkid } = req.body;
+        const deleteRelQuery = "DELETE FROM public.\"EncounterActionList\" WHERE linkid=$1";
+        const deleteRel = await pool.query(
+            deleteRelQuery,
+            [linkid]
+        )
+        res.send(JSON.stringify({message: "Complate"}));
     } catch (error) {
         console.error(error.message);
     }

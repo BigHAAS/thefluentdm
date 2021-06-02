@@ -180,12 +180,37 @@ export default class DiceRoller extends React.Component{
     async componentDidUpdate(prevProps, prevState){
         if(prevState.diceToRoll !== this.state.diceToRoll){
             try {
-                const response = await fetch(`http://localhost:5000/action/diceroller/update/${this.props.actionid}/`, {
+                const response = await fetch(`http://localhost:5000/action/diceroller/update/dice/${this.props.actionid}/`, {
                     method: "PUT",
                     headers: { "Accept": "application/json", "Content-Type": "application/json" },
-                    body: JSON.stringify({diceToBeSet: this.state.diceToRoll, encounterData: this.state.encounterData})
+                    body: JSON.stringify({diceToBeSet: this.state.diceToRoll})
                 });
                 await response.json();
+                for(let i=0;i<this.state.encounterData.length;i++){
+                    if(this.state.encounterData[i].linkid!==null){
+                        const response = await fetch(`http://localhost:5000/action/update-encounter-action-rel`,{
+                            method: "PUT",
+                            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                            body: JSON.stringify({
+                                "encounterid": this.state.encounterData[i].encounterid,
+                                "position": this.state.encounterData[i].col1,
+                                "linkid": this.state.encounterData[i].linkid
+                            })
+                        })
+                        await response.json();
+                    } else {
+                        const response = await fetch(`http://localhost:5000/action/replace-encounter-action-rel`,{
+                            method: "POST",
+                            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                            body: JSON.stringify({
+                                "actionid": this.props.actionid,
+                                "encounterid": null,
+                                "position": this.state.encounterData[i].col1
+                            })
+                        })
+                        await response.json(); 
+                    }
+                }
             } catch (error) {
 
             }
@@ -226,16 +251,16 @@ export default class DiceRoller extends React.Component{
         let currState = this.state.encounterData.slice();
         if(currState.length===0){
             for(let i=diceMinMaxObj.min;i<=diceMinMaxObj.max;i++){
-                tempArr.push({col1: i,col2:''});
+                tempArr.push({col1: i,col2:null, encounterid: null, linkid: null});
             }
         } else {
             let i=0;
             let tempMin = diceMinMaxObj.min;
             for(;i<currState.length;i++,tempMin++){
-                tempArr.push({col1: tempMin,col2:currState[i].col2});
+                tempArr.push({col1: tempMin,col2:currState[i].col2, encounterid: currState[i].encounterid, linkid: currState[i].linkid});
             }
             for(;tempMin<=diceMinMaxObj.max;tempMin++){
-                tempArr.push({col1:tempMin,col2:''});
+                tempArr.push({col1:tempMin,col2:null, encounterid: null, linkid: null});
             }
         } 
         this.setState({encounterData:tempArr});
@@ -250,8 +275,28 @@ export default class DiceRoller extends React.Component{
         tempArr.splice(index,1,formattedData);
         this.setState({encounterData:tempArr});
     }
+
+    async removeOverflowBackend(arrayToRemove){
+        try {
+            for(let i=0;i<arrayToRemove.length;i++){
+                const response = await fetch(`http://localhost:5000/action/delete-encounter-action-rel`,{
+                    method: "POST",
+                    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+                    body: JSON.stringify({
+                        "linkid": arrayToRemove[i].linkid,
+                    })
+                })
+                await response.json();
+            }
+        } catch (error) {
+            console.log(error);
+        }
+
+    }
+
     removeOverflow = () => {
         let diceMinMaxObj = getDiceMaxMinObj(this.state.diceToRoll);
+        this.removeOverflowBackend(this.state.encounterData.slice((diceMinMaxObj.max + 1 -diceMinMaxObj.min)));
         this.setState({encounterData:this.state.encounterData.slice(0,(diceMinMaxObj.max + 1 -diceMinMaxObj.min))});
     }
     handleRollClick = () => {

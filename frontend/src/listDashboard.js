@@ -1,25 +1,33 @@
-import { render } from '@testing-library/react';
 import React, {useEffect, useState} from 'react';
 
 import useToken from './useToken';
 import Dashboard from './dashboard';
 
+import Link from '@material-ui/core/Link';
+import { List, ListItem, makeStyles } from '@material-ui/core';
 import {
-    Redirect,
-    Link,
+    Link as RouterLink,
     Switch,
     Route, 
     useHistory
 } from "react-router-dom";
 
-function ListItem(props){
-    return <li>{props.value}</li>
-}
+const useStyles = makeStyles((theme) => ({
+    root: {
+        width: '100%',
+        maxWidth: 360,
+        backgroundColor: theme.palette.background.paper,
+    },
+    selectionList: {
+        display: 'flex'
+    },
+}));
 
 export default function ListDashboard() {
     const { token, setToken } = useToken();
     let history = useHistory();
     const [dashboardList, setDashboardList] = useState([]);
+    const classes = useStyles();
 
     useEffect(() => {
         const getDashboardList = async () => {
@@ -37,16 +45,18 @@ export default function ListDashboard() {
     },[])
 
     return (
-        <div>
-            <div className="dashboard-list">
-                <ol>
+        <div className={classes.root}>
+            <div className={classes.selectionList}>
+                <List>
                     {
                         dashboardList.map((dashboardObject) =>{
-                            const linkToDashboard = <Link to={`/dashboard/${dashboardObject.dashboardid}`}>{`${dashboardObject.name}`}</Link>;
-                            return <ListItem key={dashboardObject.dashboardid} value={linkToDashboard}/>
+                            const linkToDashboard = <Link component={RouterLink} to={`/dashboard/${dashboardObject.dashboardid}`}>{`${dashboardObject.name}`}</Link>;
+                            return <ListItem>
+                                        {linkToDashboard}
+                                    </ListItem>
                         })
                     }
-                </ol>
+                </List>
             </div>
             <Switch>
                 <Route path="/dashboard/:dashboardid">

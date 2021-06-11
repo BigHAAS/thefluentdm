@@ -13,13 +13,8 @@ import {
 } from "react-router-dom";
 
 const useStyles = makeStyles((theme) => ({
-    root: {
-        width: '100%',
-        maxWidth: 360,
-        backgroundColor: theme.palette.background.paper,
-    },
     selectionList: {
-        display: 'flex'
+        marginTop: theme.spacing(1),
     },
 }));
 
@@ -45,21 +40,19 @@ export default function ListDashboard() {
     },[])
 
     return (
-        <div className={classes.root}>
-            <div className={classes.selectionList}>
-                <List>
-                    {
-                        dashboardList.map((dashboardObject) =>{
-                            const linkToDashboard = <Link component={RouterLink} to={`/dashboard/${dashboardObject.dashboardid}`}>{`${dashboardObject.name}`}</Link>;
-                            return <ListItem>
-                                        {linkToDashboard}
-                                    </ListItem>
-                        })
-                    }
-                </List>
-            </div>
+        <div className={classes.selectionList}>
+            <List>
+                {
+                    dashboardList.map((dashboardObject) =>{
+                        const linkToDashboard = <Link color='secondary' component={RouterLink} to={`/dashboard/${dashboardObject.name}/${dashboardObject.dashboardid}`}>{`${dashboardObject.name}`}</Link>;
+                        return <ListItem>
+                                    {linkToDashboard}
+                                </ListItem>
+                    })
+                }
+            </List>
             <Switch>
-                <Route path="/dashboard/:dashboardid">
+                <Route path="/dashboard/:dashboardname/:dashboardid">
                         <Dashboard />
                 </Route>
             </Switch>

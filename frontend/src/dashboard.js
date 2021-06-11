@@ -2,20 +2,49 @@ import { render } from '@testing-library/react';
 import React, { useEffect, useState } from 'react';
 
 import {
-    BrowserRouter as Router, 
     Route,
+    Link as RouterLink,
     useParams,
     useLocation,
     useRouteMatch,
     Switch
 } from "react-router-dom";
+import { AppBar, Grid, makeStyles, Toolbar, Typography, Button } from '@material-ui/core';
 
 import DiceRoller from "./dice-roller";
 import ListEncounter from "./listEncounter";
 
-function ListItem(props){
-    return <li>{props.value}</li>
-}
+const useStyles = makeStyles((theme) => ({
+    dashboard: {
+        height: '100%',
+    },
+    bannerDashboard: {
+        flexGrow: 1,
+    },
+    bannerDashboardDesktop: {
+        display: 'none',
+        [theme.breakpoints.up('md')]: {
+            display: 'flex',
+        },
+    },
+    bannerDashboardDesktopOption: {
+        marginRight: theme.spacing(2),
+        marginLeft: theme.spacing(2),
+    },
+    bannerDashboardMobile: {
+
+    },
+    contentDashboard: {
+
+    },
+    dashboardGridItem: {
+        marginTop: theme.spacing(2),
+    },
+    title: {
+        marginLeft: theme.spacing(2),
+        display: 'block',
+    },
+}))
 
 function NewAction( { dashboardid, renderToggle, setRenderToggle } ){
     const [actionName, setActionName] = useState("");
@@ -60,9 +89,10 @@ function NewAction( { dashboardid, renderToggle, setRenderToggle } ){
 export default function Dashboard(){
     const { url } = useRouteMatch();
     const [actionList , setActionList] = useState([]);
-    const [toUpdate, setToUpdate] = useState(-1);
+    const [toUpdate, setToUpdate] = useState("-1");
     const [renderToggle, setRenderToggle] = useState(false);
-    let { dashboardid } = useParams();
+    const classes = useStyles();
+    let {dashboardname, dashboardid } = useParams();
     let location = useLocation();
 
     useEffect(() => {
@@ -81,7 +111,7 @@ export default function Dashboard(){
                             actionComponentArr.push({"id":currAction.actionid, 
                                                       "type":currAction.type, 
                                                       "name": currAction.name, 
-                                                      "component":<DiceRoller actionid={ currAction.actionid } toUpdate={toUpdate} setToUpdate={handleActionUpdate} url={`/dashboard/${dashboardid}`}/>});
+                                                      "component":<DiceRoller actionid={ currAction.actionid } toUpdate={toUpdate} setToUpdate={handleActionUpdate} url={`/dashboard/${dashboardname}/${dashboardid}`}/>});
                             break;
                         default:
                             actionComponentArr.push(<div><p>Error</p></div>);
@@ -107,26 +137,40 @@ export default function Dashboard(){
     }
 
     return (
-        <div className="dashboard">
+        <div className={classes.dashboard}>
             <Route path={`${url}`}>
-                <ul>
-                    <ListItem key={0} 
-                        value={ getNewActionValue() } 
-                    />
-                </ul>
-                {actionList.length>0 && 
-                    <ol>
-                        {
-                            actionList.map((action) => 
-                                <ListItem key={ action.id } value={ action.component } />
-                            )
-                        }
-                    </ol>
-                }
+                <div className={classes.bannerDashboard}>
+                    <AppBar position="static">
+                        <Toolbar variant="dense">
+                            <Typography className={classes.title} variant="h5" color='textPrimary' noWrap>
+                                { dashboardname }
+                            </Typography>
+                            <div className={classes.bannerDashboardDesktop}>
+                                <div className={classes.bannerDashboardDesktopOption}><Button size="small" variant="contained" color="secondary" href={`${url}/creator/action-creator`}>New Action</Button></div>
+                            </div>
+                        </Toolbar>
+                    </AppBar>
+                </div>
+                <div className={classes.contentDashboard}>
+                    {actionList.length>0 && 
+                        <Grid container spacing={3} >
+                            {
+                                actionList.map((action) => 
+                                    <Grid item className={classes.dashboardGridItem}>{ action.component }</Grid>
+                                )
+                            }
+                        </Grid>
+                    }
+                </div>
             </Route>
-            <Route exact path={`${url}/encounter-selector/:actionid/:position`}>
-                <ListEncounter handleActionUpdate={handleActionUpdate}/>
-            </Route>
+            <Switch>
+                <Route exact path={`${url}/selector/encounter-selector/:actionid/:position`}>
+                    <ListEncounter handleActionUpdate={handleActionUpdate}/>
+                </Route>
+                <Route exact path={`${url}/creator/action-creator`}>
+                    <NewAction dashboardid={ dashboardid } renderToggle={ renderToggle } setRenderToggle={ setRenderToggle }/>
+                </Route>
+            </Switch>
         </div>
     );
 }

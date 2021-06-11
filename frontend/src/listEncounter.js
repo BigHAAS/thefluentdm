@@ -16,6 +16,7 @@ function NewEncounter( { userid, renderToggle, setRenderToggle } ){
     const [description, setDescription] = useState("");
 
     const handleSubmit = async e => {
+        e.preventDefault();
         try {
             const response = await fetch(`http://localhost:5000/action/new-encounter/${userid}`, {
                 method: "POST",
@@ -23,6 +24,7 @@ function NewEncounter( { userid, renderToggle, setRenderToggle } ){
                 body: JSON.stringify({ "description": description})
             });
             const respObj = await response.json();
+            console.log("HERE");
             setRenderToggle(!renderToggle);
         } catch (error) {
             
@@ -64,7 +66,7 @@ export default function ListEncounter( { handleActionUpdate }) {
                 console.log(error);
             }
         }; getEncounterList();
-    },[])
+    },[renderToggle])
 
     async function replaceEncounterAction(encounterid) {
         try {

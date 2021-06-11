@@ -8,6 +8,10 @@ import ListEncounter from './listEncounter'
 
 import { useHistory } from "react-router-dom"
 
+import { Typography, Button, TableContainer, TableCell, Table, TableRow, TableHead, TableBody, IconButton } from '@material-ui/core';
+import SearchIcon from '@material-ui/icons/Search';
+import EditIcon from '@material-ui/icons/Edit';
+
 const getDiceMaxMinObj = (diceToRoll) => {
     let formattedDiceArr = diceToRoll.replace(/ /g,'').split("+");
     let max=0;
@@ -32,9 +36,7 @@ const getDiceRoll = (diceToRoll) => {
     }
     return result;
 }
-function EditorButton(props){
-    return <button onClick={props.onClick}>{props.message}</button>
-}
+
 class DiceEditor extends React.Component{
     constructor(props){
         super(props);
@@ -66,14 +68,14 @@ class DiceEditor extends React.Component{
         let button;
         if(!isEditing){
             if(this.props.currDice===""){
-                button=<EditorButton onClick={this.handleClick} message="Add Dice" />;
+                button=<Button size="small" variant="outlined" color="secondary" onClick={this.handleClick}>Add Dice</Button>;
             }
             else {
-                button=<EditorButton onClick={this.handleClick} message="Edit Dice" />;
+                button=<IconButton color="secondary" onClick={this.handleClick}><EditIcon/></IconButton>;
             }
         } else {
             input=<input value={this.state.newDice} onChange={this.handleChange}/>;
-            button=<EditorButton onClick={this.handleSubmitClick} message="Submit" />;
+            button=<Button size="small"variant="outlined" color="secondary" onClick={this.handleSubmitClick}>Submit</Button>;
         }
         return (
             <div>
@@ -83,85 +85,33 @@ class DiceEditor extends React.Component{
         );
     }
 }
-const EditableCell = ({
-    value: initialValue,
-    row: { index },
-    column: { id },
-    setEncounterIndex,
-}) => {
-    const [value,setValue] = React.useState(initialValue);
-
-    const onChange = e => {
-        setValue(e.target.value);
-        setEncounterIndex(index,e.target.value);
-    }
-
-    React.useEffect(() => {
-        setValue(initialValue)
-    },[initialValue])
-
-    if(id==="col1" || id==="col2"){
-        return <input value={value} onChange={onChange} readOnly/>
-    } else {
-        return <input value={value} onChange={onChange}/>
-    }
-}
-
-const defaultColumn = {
-    Cell:EditableCell
-}
-
-function Table({ headerParam, dataParam, setEncounterIndex, url, actionid }) {
+function NewTable({ dataParam, url, actionid }){ 
     const history = useHistory();
-    //const location = useLocation();
-    const columns = React.useMemo(
-        () => dataFunction(headerParam),[headerParam]
-    );
-    const data = React.useMemo(
-        () => dataFunction(dataParam),[dataParam]
-    );
-    const {
-        getTableProps,
-        getTableBodyProps,
-        headerGroups,
-        rows,
-        prepareRow,
-      } = useTable({
-        columns,
-        data,
-        defaultColumn,
-        setEncounterIndex,
-    });
     return (
-        <table {...getTableProps()}>
-          <thead>
-            {headerGroups.map(headerGroup => (
-              <tr {...headerGroup.getHeaderGroupProps()}>
-                {headerGroup.headers.map(column => (
-                  <th {...column.getHeaderProps()}>{column.render('Header')}</th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody {...getTableBodyProps()}>
-            {rows.map((row, i) => {
-              prepareRow(row)
-              return (
-                <tr {...row.getRowProps()}>
-                  {row.cells.map(cell => {
-                    return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
-                  })}
-                  <td>
-                      <button onClick={() => history.push(`${url}/encounter-selector/${actionid}/${row.cells[0].value}`)}>+</button>
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
-      )
+        <TableContainer>
+            <Table size="small">
+                <TableHead>
+                    <TableRow>
+                        <TableCell align="center" >Dice Roll</TableCell>
+                        <TableCell align="center">Encounter</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {dataParam.map((data) => {
+                            return (
+                                <TableRow>
+                                    <TableCell>{data.col1}</TableCell>
+                                    <TableCell>{data.col2}</TableCell>
+                                    <TableCell><IconButton color="secondary" onClick={() => history.push(`${url}/selector/encounter-selector/${actionid}/${data.col1}`)}><SearchIcon/></IconButton></TableCell>
+                                </TableRow>
+                            )
+                    })
+                    }
+                </TableBody>
+            </Table>
+        </TableContainer>
+    );
 }
-
 
 export default class DiceRoller extends React.Component{
     constructor(props){
@@ -171,6 +121,19 @@ export default class DiceRoller extends React.Component{
             encounterData: [],
             diceToRoll:'',
             lastResult:'',
+        }
+        this.classes = {
+            diceRollerContainer: {
+            },
+            diceSectionContainer: {
+        
+            },
+            tableContainer: {
+        
+            },
+            rollContainer: {
+        
+            }, 
         }
         this.setEncounterData=this.setEncounterData.bind(this);
         this.setEncounterIndex=this.setEncounterIndex.bind(this);
@@ -314,7 +277,7 @@ export default class DiceRoller extends React.Component{
             <div>
                 <div className="dice">
                     <div className="dice-display">
-                        <p>{this.state.diceToRoll}</p>
+                        <Typography color="textPrimary" noWrap>{this.state.diceToRoll}</Typography>
                     </div>
                     <div className="dice-editor">
                         <DiceEditor currDice={this.state.diceToRoll} setNewDice={this.setNewDice}/>
@@ -322,26 +285,26 @@ export default class DiceRoller extends React.Component{
                 </div>
                 <div className="encounter-table">
                     <div className="encounter-table-data">
-                        <Table headerParam={encounterHeader} dataParam={encounterData} setEncounterIndex={this.setEncounterIndex} url={this.props.url} actionid={this.props.actionid}/>
+                        <NewTable /*headerParam={encounterHeader}*/ dataParam={encounterData} /*setEncounterIndex={this.setEncounterIndex}*/ url={this.props.url} actionid={this.props.actionid}/>
                     </div>
                     {overflowEncounterData.length>0 && 
                         <div className="encounter-table-overflow">
-                            <Table headerParam= {overflowHeader} dataParam={overflowEncounterData} setEncounterIndex={this.setEncounterIndex} url={this.props.url} actionid={this.props.actionid}/>
+                            <NewTable /*headerParam= {overflowHeader}*/ dataParam={overflowEncounterData} /*setEncounterIndex={this.setEncounterIndex}*/ url={this.props.url} actionid={this.props.actionid}/>
                         </div>
                     }
                 </div>
                 {overflowEncounterData.length>0 && 
                     <div className="overflow-editor">
-                        <button onClick={this.removeOverflow}>Delete All Overflow</button>
+                        <Button size="small" variant="outlined" color="secondary" onClick={this.removeOverflow}>Delete All Overflow</Button>
                     </div>
                 }
                 {encounterData.length>0 && 
                     <div className="roll">
                         <div className="roll-dice">
-                            <button onClick={this.handleRollClick}>Roll</button>
+                            <Button size="small" variant="outlined" color="secondary" onClick={this.handleRollClick}>Roll</Button>
                         </div>
                         <div className="roll-result">
-                            {this.state.lastResult}
+                            <Typography>{this.state.lastResult}</Typography>
                         </div>
                     </div>
                 }

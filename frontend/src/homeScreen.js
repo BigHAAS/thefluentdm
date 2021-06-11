@@ -6,8 +6,7 @@ import NewDashboard from './newDashboard';
 
 import Link from '@material-ui/core/Link';
 import MoreIcon from '@material-ui/icons/MoreVert';
-import {
-    BrowserRouter as Router, 
+import { 
     Link as RouterLink, 
     Redirect, 
     Route,
@@ -17,8 +16,13 @@ import {
 import { AppBar, makeStyles, Typography, Menu, MenuItem, IconButton, Toolbar } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
-    grow: {
+    homescreenBanner: {
         flexGrow: 1,
+    },
+    homescreenContent: {
+        display: 'flex',
+        justifyContent: 'center',
+        height: '100%',
     },
     title: {
         marginLeft: theme.spacing(2),
@@ -89,11 +93,11 @@ export default function HomeScreen( {setToken } ) {
     );
 
     return (
-        <div>
-            <div className={classes.grow}>
+        <div style={{height: '100%'}}>
+            <div className={classes.homescreenBanner}>
                 <AppBar position="static">
                     <Toolbar variant="dense">
-                        <Typography className={classes.title} variant="h6" noWrap>
+                        <Typography className={classes.title} variant="h5" color='textPrimary' noWrap>
                             The Fluent DM
                         </Typography>
                         <div className={classes.sectionDesktop}>
@@ -116,17 +120,19 @@ export default function HomeScreen( {setToken } ) {
                     </Toolbar>
                 </AppBar>
             </div>
-            <Switch>
-                <Route exact path={`${url}/create-dashboard`}>
-                    <NewDashboard />
-                </Route>
-                <Route exact path={`${url}/list-dashboard`}>
-                    <ListDashboard />
-                </Route>
-                <Route path="/logout">
-                    <Logout exact setToken={setToken}/>
-                </Route>
-            </Switch>
+            <div className={classes.homescreenContent}>
+                <Switch>
+                    <Route exact path={`${url}/create-dashboard`}>
+                        <NewDashboard />
+                    </Route>
+                    <Route exact path={`${url}/list-dashboard`}>
+                        <ListDashboard />
+                    </Route>
+                    <Route path="/logout">
+                        <Logout exact setToken={setToken}/>
+                    </Route>
+                </Switch>
+            </div>
         </div>
     );
 }

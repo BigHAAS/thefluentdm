@@ -1,4 +1,3 @@
-import { render } from '@testing-library/react';
 import React, {useEffect, useState} from 'react';
 
 import useToken from './useToken';
@@ -7,10 +6,7 @@ import {
     useHistory,
     useParams
 } from "react-router-dom";
-
-function ListItem(props){
-    return <li>{props.value}</li>
-}
+import { AppBar, Toolbar, Typography, Button, List, ListItem } from '@material-ui/core';
 
 function NewEncounter( { userid, renderToggle, setRenderToggle } ){
     const [description, setDescription] = useState("");
@@ -46,7 +42,7 @@ function NewEncounter( { userid, renderToggle, setRenderToggle } ){
     );
 }
 
-export default function ListEncounter( { handleActionUpdate }) {
+export default function ListEncounter( { handleActionUpdate, classes }) {
     let history = useHistory();
     let {actionid, position } = useParams(); 
     const { token } = useToken();
@@ -97,16 +93,23 @@ export default function ListEncounter( { handleActionUpdate }) {
 
     return (
         <div>
-            <ol>
-                <ListItem key={0} value={getNewEncounterValue()} />
-            </ol>
-            <ol>
+            <AppBar position="static">
+                <Toolbar variant="dense">
+                    <Typography className={classes.title} variant="h5" color='textPrimary' noWrap>
+                        Encounters
+                    </Typography>
+                    <div className={classes.bannerDashboardDesktop}>
+                        <div className={classes.bannerDashboardDesktopOption}><Button size="small" variant="contained" color="secondary">New</Button></div>
+                    </div>
+                </Toolbar>
+            </AppBar>
+            <List>
                 {
                     encounterList.map((encounterObject) =>
-                        <li key={encounterObject.encounterid} onClick={ () => replaceEncounterAction(encounterObject.encounterid)}>{encounterObject.description}</li>
+                        <ListItem divider button color="textPrimary" onClick={ () => replaceEncounterAction(encounterObject.encounterid)}>{encounterObject.description}</ListItem>
                     )
                 }
-            </ol>
+            </List>
         </div>
     );
 }

@@ -1,6 +1,4 @@
-import { render } from '@testing-library/react';
 import React from 'react';
-import ReactDOM from 'react-dom';
 
 import Dashboard from './dashboard';
 
@@ -20,7 +18,6 @@ export default class NewDashboard extends React.Component{
         e.preventDefault();
         try {
             const bodyPostDashboard = { "userid":this.props.userid, "name":this.state.formData.name };
-            console.log(bodyPostDashboard);
             const responsePostDashboard = await fetch(`http://localhost:5000/dashboard`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json", "Accept": "application/json" },

@@ -1,11 +1,8 @@
-import { render } from '@testing-library/react';
 import React, { useEffect, useState } from 'react';
 
 import {
     Route,
-    Link as RouterLink,
     useParams,
-    useLocation,
     useRouteMatch,
     Switch
 } from "react-router-dom";
@@ -17,6 +14,10 @@ import ListEncounter from "./listEncounter";
 const useStyles = makeStyles((theme) => ({
     dashboard: {
         height: '100%',
+    },
+    title: {
+        marginLeft: theme.spacing(2),
+        display: 'block',
     },
     bannerDashboard: {
         flexGrow: 1,
@@ -35,15 +36,19 @@ const useStyles = makeStyles((theme) => ({
 
     },
     contentDashboard: {
-
+        display: 'flex',
+    },
+    contentDashboardGrid: {
+        flex: '1 1 auto',
     },
     dashboardGridItem: {
         marginTop: theme.spacing(2),
     },
-    title: {
-        marginLeft: theme.spacing(2),
-        display: 'block',
-    },
+    contentDashboardList: {
+        flex: '1 1 25%',
+        marginTop: theme.spacing(2),
+        height: '100%',
+    }
 }))
 
 function NewAction( { dashboardid, renderToggle, setRenderToggle } ){
@@ -60,7 +65,7 @@ function NewAction( { dashboardid, renderToggle, setRenderToggle } ){
                         "dashboardid": dashboardid,
                         "position": 0})
             });
-            const respObj = await response.json();
+            await response.json();
             setRenderToggle(!renderToggle);
         } catch (error) {
             
@@ -93,7 +98,6 @@ export default function Dashboard(){
     const [renderToggle, setRenderToggle] = useState(false);
     const classes = useStyles();
     let {dashboardname, dashboardid } = useParams();
-    let location = useLocation();
 
     useEffect(() => {
         const getDashboardActions = async () => {
@@ -152,25 +156,29 @@ export default function Dashboard(){
                     </AppBar>
                 </div>
                 <div className={classes.contentDashboard}>
-                    {actionList.length>0 && 
-                        <Grid container spacing={3} >
-                            {
-                                actionList.map((action) => 
-                                    <Grid item className={classes.dashboardGridItem}>{ action.component }</Grid>
-                                )
-                            }
-                        </Grid>
-                    }
+                    <div className={classes.contentDashboardGrid}>
+                        {actionList.length>0 && 
+                            <Grid container spacing={3} >
+                                {
+                                    actionList.map((action) => 
+                                        <Grid item className={classes.dashboardGridItem}>{ action.component }</Grid>
+                                    )
+                                }
+                            </Grid>
+                        }
+                    </div>
+                    <div className={classes.contentDashboardList}>
+                        <Switch>
+                            <Route exact path={`${url}/selector/encounter-selector/:actionid/:position`}>
+                                <ListEncounter classes={classes} handleActionUpdate={handleActionUpdate}/>
+                            </Route>
+                            <Route exact path={`${url}/creator/action-creator`}>
+                                <NewAction dashboardid={ dashboardid } renderToggle={ renderToggle } setRenderToggle={ setRenderToggle }/>
+                            </Route>
+                        </Switch>
+                    </div>
                 </div>
             </Route>
-            <Switch>
-                <Route exact path={`${url}/selector/encounter-selector/:actionid/:position`}>
-                    <ListEncounter handleActionUpdate={handleActionUpdate}/>
-                </Route>
-                <Route exact path={`${url}/creator/action-creator`}>
-                    <NewAction dashboardid={ dashboardid } renderToggle={ renderToggle } setRenderToggle={ setRenderToggle }/>
-                </Route>
-            </Switch>
         </div>
     );
 }

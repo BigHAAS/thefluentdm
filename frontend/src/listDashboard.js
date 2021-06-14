@@ -4,7 +4,7 @@ import useToken from './useToken';
 import Dashboard from './dashboard';
 
 import Link from '@material-ui/core/Link';
-import { List, ListItem, makeStyles } from '@material-ui/core';
+import { List, ListItem } from '@material-ui/core';
 import {
     Link as RouterLink,
     Switch,
@@ -12,17 +12,11 @@ import {
     useHistory
 } from "react-router-dom";
 
-const useStyles = makeStyles((theme) => ({
-    selectionList: {
-        marginTop: theme.spacing(1),
-    },
-}));
 
 export default function ListDashboard() {
     const { token, setToken } = useToken();
     let history = useHistory();
     const [dashboardList, setDashboardList] = useState([]);
-    const classes = useStyles();
 
     useEffect(() => {
         const getDashboardList = async () => {
@@ -40,7 +34,7 @@ export default function ListDashboard() {
     },[])
 
     return (
-        <div className={classes.selectionList}>
+        <div>
             <List>
                 {
                     dashboardList.map((dashboardObject) =>{

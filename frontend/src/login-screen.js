@@ -6,8 +6,11 @@ export default function Login( { setToken } ){
     const [password, setPassword] = useState();
     const [userid, setUserId] = useState();
 
+    
     useEffect(() => {
-        setToken({"token": userid});
+        if(userid){ 
+            setToken({"token": userid});
+        }
     },[userid])
 
     const handleSubmit = async e => {

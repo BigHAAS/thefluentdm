@@ -4,9 +4,11 @@ import {
     Route,
     useParams,
     useRouteMatch,
+    useHistory,
     Switch
 } from "react-router-dom";
-import { AppBar, Grid, makeStyles, Toolbar, Typography, Button } from '@material-ui/core';
+import { AppBar, Grid, makeStyles, Toolbar, Typography, Button, FormControl, Input, InputLabel, Select, MenuItem, IconButton } from '@material-ui/core';
+import DeleteIcon from '@material-ui/icons/Delete';
 
 import DiceRoller from "./dice-roller";
 import ListEncounter from "./listEncounter";
@@ -51,11 +53,36 @@ const useStyles = makeStyles((theme) => ({
     }
 }))
 
+function DashboardAction( { renderToggle, setRenderToggle, id, linkid, type, name, children } ){
+
+    const deleteSelf = async() => {
+        const requestBody = {linkid: linkid};
+        const response = await fetch(`http://localhost:5000/action/delete-dashboard-action`, {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(requestBody)
+        });
+        const responseObj = await response.json();
+        setRenderToggle(!renderToggle);
+    }
+    return ( 
+        <div>
+            <div>
+                <Typography>{name}</Typography>
+                <IconButton color='secondary' size='small' onClick={deleteSelf}><DeleteIcon /></IconButton>
+            </div>
+            {children}
+        </div>
+    );
+}
+
 function NewAction( { dashboardid, renderToggle, setRenderToggle } ){
     const [actionName, setActionName] = useState("");
     const [actionType, setActionType] = useState(1);
+    let history = useHistory();
 
     const handleSubmit = async e => {
+        e.preventDefault();
         try {
             const response = await fetch('http://localhost:5000/action/new-dashboard-action/diceRoller', {
                 method: "POST",
@@ -73,20 +100,27 @@ function NewAction( { dashboardid, renderToggle, setRenderToggle } ){
     }
 
     const handleCancel = () => {
-        setRenderToggle(!renderToggle);
+        history.goBack();
     }
 
     return (
-        <form onSubmit={ handleSubmit }>
-            <label>Name
-                <input name="actionName" type="text" value={ actionName } onChange={ e => setActionName(e.target.value) } required/>
-            </label>
-            <label htmlFor="actionType">Type</label>
-            <select name="actionType" id="actionType" value={ actionType } onChange={ e => setActionType(e.target.value) }>
-                <option value={1}>Dice Roll Table</option>
-            </select>
-            <button type="submit">Submit</button>
-            <button type="button" onClick={ handleCancel }>X</button>
+        <form >
+            <div>
+                <FormControl> 
+                    <InputLabel htmlFor="actionName">Name</InputLabel>
+                    <Input id="actionName" value={ actionName } onChange={ e => setActionName(e.target.value) } required/>
+                </FormControl>
+            </div>
+            <div>
+                <InputLabel id="actionType">Type</InputLabel>
+                <Select labelId="actionType" id="actionType" value={ actionType } onChange={ e => setActionType(e.target.value) }>
+                    <MenuItem value={1}>Dice Roll Table</MenuItem>
+                </Select>
+            </div>
+            <div>
+                <Button type="submit" onClick={handleSubmit} >Submit</Button>
+                <Button type="button" onClick={ handleCancel }>X</Button>
+            </div>
         </form>
     );
 }
@@ -112,10 +146,7 @@ export default function Dashboard(){
                     let currAction = actionObjArr[i];
                     switch(currAction.type){
                         case 1:
-                            actionComponentArr.push({"id":currAction.actionid, 
-                                                      "type":currAction.type, 
-                                                      "name": currAction.name, 
-                                                      "component":<DiceRoller actionid={ currAction.actionid } toUpdate={toUpdate} setToUpdate={handleActionUpdate} url={`/dashboard/${dashboardname}/${dashboardid}`}/>});
+                            actionComponentArr.push({id: currAction.actionid, component: <DashboardAction renderToggle={renderToggle} setRenderToggle={setRenderToggle} linkid={currAction.linkid} id={currAction.actionid} type={currAction.type} name={currAction.name}><DiceRoller actionid={ currAction.actionid } toUpdate={toUpdate} setToUpdate={handleActionUpdate} url={`/dashboard/${dashboardname}/${dashboardid}`}/></DashboardAction>});
                             break;
                         default:
                             actionComponentArr.push(<div><p>Error</p></div>);
@@ -126,15 +157,7 @@ export default function Dashboard(){
                 
             }
         }; getDashboardActions();
-    },[toUpdate, ])
-
-    const getNewActionValue = () => {
-        if(!renderToggle){
-            return <button onClick={ () => {setRenderToggle(!renderToggle)} }>New Action</button>;
-        } else {
-            return <NewAction dashboardid={dashboardid} renderToggle={renderToggle} setRenderToggle={setRenderToggle} />;
-        }
-    }
+    },[toUpdate, renderToggle])
 
     function handleActionUpdate(actionid){
         setToUpdate(actionid);
@@ -169,7 +192,7 @@ export default function Dashboard(){
                     </div>
                     <div className={classes.contentDashboardList}>
                         <Switch>
-                            <Route exact path={`${url}/selector/encounter-selector/:actionid/:position`}>
+                            <Route exact path={`${url}/selector/encounter-selector/:actionid/:position*`}>
                                 <ListEncounter classes={classes} handleActionUpdate={handleActionUpdate}/>
                             </Route>
                             <Route exact path={`${url}/creator/action-creator`}>

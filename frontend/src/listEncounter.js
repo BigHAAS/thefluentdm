@@ -4,12 +4,16 @@ import useToken from './useToken';
 
 import {
     useHistory,
-    useParams
+    useParams,
+    Route,
+    useRouteMatch,
 } from "react-router-dom";
 import { AppBar, Toolbar, Typography, Button, List, ListItem } from '@material-ui/core';
+import CancelIcon from '@material-ui/icons/Cancel';
 
 function NewEncounter( { userid, renderToggle, setRenderToggle } ){
     const [description, setDescription] = useState("");
+    let history = useHistory();
 
     const handleSubmit = async e => {
         e.preventDefault();
@@ -20,30 +24,27 @@ function NewEncounter( { userid, renderToggle, setRenderToggle } ){
                 body: JSON.stringify({ "description": description})
             });
             const respObj = await response.json();
-            console.log("HERE");
+            history.goBack();
             setRenderToggle(!renderToggle);
         } catch (error) {
             
         }
     }
 
-    const handleCancel = () => {
-        setRenderToggle(!renderToggle);
-    }
-
     return (
-        <form onSubmit={ handleSubmit }>
+        <form>
             <label>Name
                 <textarea name="encounter-description" value={ description } onChange={ e => setDescription(e.target.value) } required/>
             </label>
-            <button type="submit">Submit</button>
-            <button type="button" onClick={ handleCancel }>X</button>
+            <button type="submit" onClick={ handleSubmit }>Submit</button>
+            <button type="button" onClick={ () => history.goBack() }>X</button>
         </form>
     );
 }
 
 export default function ListEncounter( { handleActionUpdate, classes }) {
     let history = useHistory();
+    const { url } = useRouteMatch();
     let {actionid, position } = useParams(); 
     const { token } = useToken();
     const [encounterList, setEncounterList] = useState([]);
@@ -83,14 +84,6 @@ export default function ListEncounter( { handleActionUpdate, classes }) {
         history.goBack();
     }
 
-    const getNewEncounterValue = () => {
-        if(!renderToggle){
-            return <button onClick={ () => {setRenderToggle(!renderToggle)} }>New</button>;
-        } else {
-            return <NewEncounter userid={token} renderToggle={renderToggle} setRenderToggle={setRenderToggle} />;
-        }
-    }
-
     return (
         <div>
             <AppBar position="static">
@@ -99,17 +92,27 @@ export default function ListEncounter( { handleActionUpdate, classes }) {
                         Encounters
                     </Typography>
                     <div className={classes.bannerDashboardDesktop}>
-                        <div className={classes.bannerDashboardDesktopOption}><Button size="small" variant="contained" color="secondary">New</Button></div>
+                        <div className={classes.bannerDashboardDesktopOption}>
+                            <Button size="small" variant="contained" color="secondary" onClick={() => history.push(`${url}/creator/encounter-creator`)}>New</Button>
+                            <Button size="small" color="secondary" onClick={() => history.goBack()}><CancelIcon /></Button>
+                        </div>
                     </div>
                 </Toolbar>
             </AppBar>
-            <List>
-                {
-                    encounterList.map((encounterObject) =>
-                        <ListItem divider button color="textPrimary" onClick={ () => replaceEncounterAction(encounterObject.encounterid)}>{encounterObject.description}</ListItem>
-                    )
-                }
-            </List>
+            <div>
+                <Route path="*/creator/encounter-creator">
+                    <NewEncounter userid={token} renderToggle={renderToggle} setRenderToggle={setRenderToggle}/>
+                </Route>
+                <Route path="*/selector/encounter-selector/:actionid/:position*">
+                    <List>
+                        {
+                            encounterList.map((encounterObject) =>
+                                <ListItem divider button color="textPrimary" onClick={ () => replaceEncounterAction(encounterObject.encounterid)}>{encounterObject.description}</ListItem>
+                            )
+                        }
+                    </List>
+                </Route>
+            </div>
         </div>
     );
 }

@@ -31,12 +31,13 @@ function App(){
     return(
         <Switch>
             {
-                !token && <Route path="/"> <Redirect exact from="/" to="/login"/></Route>
+                !token && <Redirect exact from="/" to="/login"/>
             }
             <Route exact path="/">
                 <Redirect exact from="/" to="/home" />
             </Route>
             <Route exact path="/login">
+                <p>Login</p>
                 <Login setToken={setToken}/>  
             </Route>
             <Route path="/home">

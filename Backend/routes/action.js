@@ -6,7 +6,7 @@ var router = express.Router();
 router.get('/get-dashboard-actions/:dashboardid',async(req,res) => {
     try {
         const query = 
-        "SELECT public.\"Action\".actionid, public.\"Action\".name, public.\"Action\".type "+ 
+        "SELECT public.\"Action\".actionid, public.\"Action\".name, public.\"Action\".type, public.\"DashboardActionList\".linkid "+ 
             "FROM public.\"Action\" "+
         "LEFT OUTER JOIN public.\"DashboardActionList\" "+
             "ON public.\"Action\".actionid = public.\"DashboardActionList\".actionid "+
@@ -16,6 +16,23 @@ router.get('/get-dashboard-actions/:dashboardid',async(req,res) => {
             [req.params.dashboardid]
         );
         res.send(actionList.rows);
+    } catch (error) {
+        console.error(error.message);
+    }
+})
+
+/*DELETE specifiedd action from dashboard*/
+router.post('/delete-dashboard-action',async(req,res) => {
+    try {
+        const { linkid } = req.body;
+        console.log(linkid);
+        const query = 
+        "DELETE FROM public.\"DashboardActionList\" WHERE linkid=$1";
+        const deleteMessage = await pool.query( 
+            query,
+            [linkid]
+        );
+        res.send(JSON.stringify( {message: "Complete"} ));
     } catch (error) {
         console.error(error.message);
     }
@@ -50,7 +67,7 @@ router.post('/new-dashboard-action/diceRoller', async(req,res) => {
                 [actionId]
             );
         }
-        res.send("complete");
+        res.send(JSON.stringify( {message: "Complete"} ));
     } catch (error) {
         console.error(error.message);
     }

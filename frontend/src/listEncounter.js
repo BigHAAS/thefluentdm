@@ -8,7 +8,7 @@ import {
     Route,
     useRouteMatch,
 } from "react-router-dom";
-import { AppBar, Toolbar, Typography, Button, List, ListItem } from '@material-ui/core';
+import { AppBar, Toolbar, Typography, Button, List, ListItem, TextField, IconButton } from '@material-ui/core';
 import CancelIcon from '@material-ui/icons/Cancel';
 
 function NewEncounter( { userid, renderToggle, setRenderToggle } ){
@@ -33,11 +33,9 @@ function NewEncounter( { userid, renderToggle, setRenderToggle } ){
 
     return (
         <form>
-            <label>Name
-                <textarea name="encounter-description" value={ description } onChange={ e => setDescription(e.target.value) } required/>
-            </label>
-            <button type="submit" onClick={ handleSubmit }>Submit</button>
-            <button type="button" onClick={ () => history.goBack() }>X</button>
+            <TextField variant="outlined" label="Name"/>
+            <Button variant="outlined" color="secondary" onClick={ handleSubmit }>Submit</Button>
+            <IconButton color="secondary" onClick={ () => history.goBack() }><CancelIcon /></IconButton>
         </form>
     );
 }
